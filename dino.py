@@ -29,8 +29,8 @@ BG = pygame.image.load(os.path.join("pic/other/Track.png"))
 class Dinosaur:
     X_POS = 80
     Y_POS = 310
-    Y_DUCK_POS = 340
-    JUMP_VEL = 8.5
+    Y_POS_DUCK = 340
+    
 
     def __init__(self):
         self.duck_img = Ducking
@@ -72,7 +72,11 @@ class Dinosaur:
             self.dino_jump = False
 
     def duck(self):
-        pass
+        self.image = self.duck_img[self.step_index // 5]
+        self.dino_rect = self.image.get_rect()
+        self.dino_rect.x = self.X_POS
+        self.dino_rect.y = self.Y_POS_DUCK
+        self.step_index += 1
 
     def run(self):
         self.image = self.run_img[self.step_index // 5]
