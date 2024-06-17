@@ -9,6 +9,7 @@ SCREEN_HEIGHT = 600
 SCREEN_WIDTH = 1100
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+# Load images
 Running = [pygame.image.load(os.path.join("pic/dino", "DinoRun1.png")), pygame.image.load(os.path.join("pic/dino", "DinoRun2.png"))]
 Jumping = pygame.image.load(os.path.join("pic/dino", "DinoJump.png"))
 Ducking = [pygame.image.load(os.path.join("pic/dino/DinoDuck1 (1).png")), pygame.image.load(os.path.join("pic/dino/DinoDuck2 (1).png"))]
@@ -27,12 +28,14 @@ CLOUD = pygame.image.load(os.path.join("pic/other/Cloud.png"))
 
 BG = pygame.image.load(os.path.join("pic/other/Track.png"))
 
+# Font initialization
+font = pygame.font.Font('freesansbold.ttf', 20)
+
 class Dinosaur:
     X_POS = 80
     Y_POS = 310
     Y_POS_DUCK = 340
     JUMP_VEL = 8.5
-    
 
     def __init__(self):
         self.duck_img = Ducking
@@ -108,13 +111,11 @@ class Cloud:
         self.image = CLOUD
         self.width = self.image.get_width()
 
-
     def update(self):
         self.x -= game_speed
         if self.x < -self.width:
             self.x = SCREEN_WIDTH + random.randint(2500, 3000)
             self.y = random.randint(50, 100)
-
 
     def draw(self, SCREEN):
         SCREEN.blit(self.image, (self.x, self.y))
@@ -135,17 +136,20 @@ class Obstacle:
     def draw(self, SCREEN):
         SCREEN.blit(self.image[self.type], self.rect)
 
+
 class SmallCactus(Obstacle):
     def __init__(self, image):
         self.type = random.randint(0, 2)
         super().__init__(image, self.type)
         self.rect.y = 325
 
+
 class LargeCactus(Obstacle):
     def __init__(self, image):
         self.type = random.randint(0, 2)
         super().__init__(image, self.type)
         self.rect.y = 300
+
 
 class Bird(Obstacle):
     def __init__(self, image):
@@ -157,9 +161,24 @@ class Bird(Obstacle):
     def draw(self, SCREEN):
         if self.index >= 9:
             self.index = 0
-        SCREEN.blit(self.image[self.index//5], self.rect)
+        SCREEN.blit(self.image[self.index // 5], self.rect)
         self.index += 1
 
+
+def read_high_score():
+    if not os.path.isfile('highscore.txt'):
+        return 0
+    with open('highscore.txt', 'r') as file:
+        try:
+            high_score = int(file.read())
+        except ValueError:
+            return 0
+    return high_score
+
+
+def write_high_score(score):
+    with open('highscore.txt', 'w') as file:
+        file.write(str(score))
 
 
 def main():
@@ -171,8 +190,7 @@ def main():
     game_speed = 14
     x_pos_bg = 0
     y_pos_bg = 380
-    points = 0
-    font = pygame.font.Font('freesansbold.ttf', 20)
+    points = read_high_score()
     obstacles = []
     death_count = 0
 
@@ -187,6 +205,10 @@ def main():
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
 
+        # Update high score if current score is higher
+        if points > read_high_score():
+            write_high_score(points)
+
     def background():
         global x_pos_bg, y_pos_bg
         image_width = BG.get_width()
@@ -197,12 +219,10 @@ def main():
             x_pos_bg = 0
         x_pos_bg -= game_speed
 
-
-
-
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
                 run = False
 
         SCREEN.fill((255, 255, 255))
@@ -223,11 +243,9 @@ def main():
             obstacle.draw(SCREEN)
             obstacle.update()
             if player.dino_rect.colliderect(obstacle.rect):
-                pygame.time.delay(2000)
+                pygame.time.delay(1000)
                 death_count += 1
                 menu(death_count)
-
-
 
         background()
 
@@ -236,8 +254,9 @@ def main():
 
         score()
 
-        clock.tick(30)
         pygame.display.update()
+        clock.tick(30)
+
 
 def menu(death_count):
     global points
@@ -250,15 +269,17 @@ def menu(death_count):
             text = font.render("Press any Key to Start", True, (0, 0, 0))
         elif death_count > 0:
             text = font.render("Press any Key to Restart", True, (0, 0, 0))
-            score = font.render("Your Score: " + str(points), True, (0, 0, 0))
-            scoreRect = score.get_rect()
-            scoreRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
-            SCREEN.blit(score, scoreRect)
-        textRect = text.get_rect()
-        textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
-        SCREEN.blit(text, textRect)
+            score_text = font.render("Your Score: " + str(points), True, (0, 0, 0))
+            score_rect = score_text.get_rect()
+            score_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
+            SCREEN.blit(score_text, score_rect)
+
+        text_rect = text.get_rect()
+        text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        SCREEN.blit(text, text_rect)
         SCREEN.blit(Running[0], (SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2 - 140))
         pygame.display.update()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -267,10 +288,21 @@ def menu(death_count):
                 main()
 
 
-        
+def read_high_score():
+    if not os.path.isfile('highscore.txt'):
+        return 0
+    with open('highscore.txt', 'r') as file:
+        try:
+            high_score = int(file.read())
+        except ValueError:
+            return 0
+    return high_score
 
 
+def write_high_score(score):
+    with open('highscore.txt', 'w') as file:
+        file.write(str(score))
 
 
-
-menu(death_count=0)
+if __name__ == "__main__":
+    menu(death_count=0)
