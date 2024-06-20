@@ -351,9 +351,6 @@ def menu(death_count):
             switch_user_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 150)
             SCREEN.blit(switch_user_text, switch_user_rect)
 
-            # Display all high scores sorted
-            display_high_scores()
-
         text_rect = text.get_rect()
         text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         SCREEN.blit(text, text_rect)
