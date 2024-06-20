@@ -247,6 +247,23 @@ def display_high_scores():
     pygame.time.wait(3000)
 
 
+def display_user_high_score(username, score):
+    global player_name, high_scores
+    SCREEN.fill((255, 255, 255))
+    font = pygame.font.Font('freesansbold.ttf', 30)
+    
+    if username in high_scores:
+        score_text = font.render(f"High Score for {username}: {high_scores[username]}", True, (0, 0, 0))
+    else:
+        score_text = font.render(f"No high score found for {username}", True, (0, 0, 0))
+    
+    score_rect = score_text.get_rect()
+    score_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+    SCREEN.blit(score_text, score_rect)
+    
+    pygame.display.update()
+    pygame.time.wait(3000)
+
 def main():
     global game_speed, x_pos_bg, y_pos_bg, points, obstacles, player_name, high_scores
     run = True
@@ -325,7 +342,7 @@ def main():
 
 
 def menu(death_count):
-    global points, player_name
+    global points, player_name, high_scores
     run = True
     while run:
         SCREEN.fill((255, 255, 255))
@@ -351,6 +368,16 @@ def menu(death_count):
             switch_user_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 150)
             SCREEN.blit(switch_user_text, switch_user_rect)
 
+            search_algorithm_text = font.render("Press F to Search by Username", True, (0, 0, 0))
+            search_algorithm_rect = search_algorithm_text.get_rect()
+            search_algorithm_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 200)
+            SCREEN.blit(search_algorithm_text, search_algorithm_rect)
+
+            sorted_highscores_text = font.render("Press P to Show Sorted High Scores", True, (0, 0, 0))
+            sorted_highscores_rect = sorted_highscores_text.get_rect()
+            sorted_highscores_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 250)
+            SCREEN.blit(sorted_highscores_text, sorted_highscores_rect)
+
         text_rect = text.get_rect()
         text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         SCREEN.blit(text, text_rect)
@@ -364,6 +391,36 @@ def menu(death_count):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_s:
                     get_player_name()
+                elif event.key == pygame.K_f:
+                    pygame.event.clear()  # Clear previous events to avoid unexpected inputs
+                    username_entered = False
+                    username = ""
+                    while not username_entered:
+                        SCREEN.fill((255, 255, 255))
+                        input_text = font.render(f"Enter username to search: {username}", True, (0, 0, 0))
+                        input_text_rect = input_text.get_rect()
+                        input_text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+                        SCREEN.blit(input_text, input_text_rect)
+                        pygame.display.update()
+
+                        for event_search in pygame.event.get():
+                            if event_search.type == pygame.QUIT:
+                                pygame.quit()
+                                run = False
+                                username_entered = True
+                            elif event_search.type == pygame.KEYDOWN:
+                                if event_search.key == pygame.K_RETURN:
+                                    username_entered = True
+                                elif event_search.key == pygame.K_BACKSPACE:
+                                    username = username[:-1]
+                                elif event_search.unicode.isalnum():
+                                    username += event_search.unicode
+
+                    if username.strip():  # If username is not empty after input
+                        display_user_high_score(username, high_scores.get(username, 0))
+                    pygame.time.delay(1000)  # Delay to avoid immediate exit
+                elif event.key == pygame.K_p:
+                    display_high_scores()
                 else:
                     main()
 
