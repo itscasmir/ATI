@@ -216,6 +216,37 @@ def get_player_name():
                     user_text += event.unicode
 
 
+def search_high_score(username):
+    global high_scores
+    return high_scores.get(username, "User not found")
+
+
+def sort_high_scores():
+    global high_scores
+    return sorted(high_scores.items(), key=lambda item: item[1], reverse=True)
+
+
+def display_high_scores():
+    sorted_scores = sort_high_scores()
+    y_offset = 50
+    SCREEN.fill((255, 255, 255))
+    font = pygame.font.Font('freesansbold.ttf', 30)
+    title = font.render("High Scores", True, (0, 0, 0))
+    title_rect = title.get_rect()
+    title_rect.center = (SCREEN_WIDTH // 2, 20)
+    SCREEN.blit(title, title_rect)
+
+    for username, score in sorted_scores:
+        score_text = font.render(f"{username}: {score}", True, (0, 0, 0))
+        score_rect = score_text.get_rect()
+        score_rect.topleft = (50, y_offset)
+        SCREEN.blit(score_text, score_rect)
+        y_offset += 30
+
+    pygame.display.update()
+    pygame.time.wait(3000)
+
+
 def main():
     global game_speed, x_pos_bg, y_pos_bg, points, obstacles, player_name, high_scores
     run = True
@@ -235,19 +266,14 @@ def main():
         if points % 100 == 0:
             game_speed += 1
 
-        text = font.render("Points: " + str(points), True, (0, 0, 0))
-        textRect = text.get_rect()
-        textRect.center = (1000, 40)
-        SCREEN.blit(text, textRect)
-
-        # Update high score if current score is higher
-        if player_name in high_scores:
-            if points > high_scores[player_name]:
-                high_scores[player_name] = points
-        else:
+        if points > high_scores.get(player_name, 0):
             high_scores[player_name] = points
+            write_high_scores()
 
-        write_high_scores()
+        text = font.render(f"Points: {points}", True, (0, 0, 0))
+        text_rect = text.get_rect()
+        text_rect.center = (1000, 40)
+        SCREEN.blit(text, text_rect)
 
     def background():
         global x_pos_bg, y_pos_bg
@@ -324,6 +350,9 @@ def menu(death_count):
             switch_user_rect = switch_user_text.get_rect()
             switch_user_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 150)
             SCREEN.blit(switch_user_text, switch_user_rect)
+
+            # Display all high scores sorted
+            display_high_scores()
 
         text_rect = text.get_rect()
         text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
