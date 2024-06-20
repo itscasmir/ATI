@@ -1,6 +1,7 @@
 import pygame
 import os
 import random
+import json
 
 pygame.init()
 
@@ -30,6 +31,11 @@ BG = pygame.image.load(os.path.join("pic/other/Track.png"))
 
 # Font initialization
 font = pygame.font.Font('freesansbold.ttf', 20)
+
+# Variables to store player data
+player_name = ""
+high_scores = {}
+
 
 class Dinosaur:
     X_POS = 80
@@ -165,24 +171,53 @@ class Bird(Obstacle):
         self.index += 1
 
 
-def read_high_score():
-    if not os.path.isfile('highscore.txt'):
-        return 0
-    with open('highscore.txt', 'r') as file:
+def read_high_scores():
+    global high_scores
+    if not os.path.isfile('highscores.json'):
+        return {}
+    with open('highscores.json', 'r') as file:
         try:
-            high_score = int(file.read())
+            high_scores = json.load(file)
         except ValueError:
-            return 0
-    return high_score
+            return {}
+    return high_scores
 
 
-def write_high_score(score):
-    with open('highscore.txt', 'w') as file:
-        file.write(str(score))
+def write_high_scores():
+    global high_scores
+    with open('highscores.json', 'w') as file:
+        json.dump(high_scores, file)
+
+
+def get_player_name():
+    global player_name
+    run = True
+    user_text = ''
+    while run:
+        SCREEN.fill((255, 255, 255))
+        font = pygame.font.Font('freesansbold.ttf', 30)
+        text = font.render("Enter your name: " + user_text, True, (0, 0, 0))
+        text_rect = text.get_rect()
+        text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        SCREEN.blit(text, text_rect)
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                run = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    player_name = user_text
+                    run = False
+                elif event.key == pygame.K_BACKSPACE:
+                    user_text = user_text[:-1]
+                else:
+                    user_text += event.unicode
 
 
 def main():
-    global game_speed, x_pos_bg, y_pos_bg, points, obstacles
+    global game_speed, x_pos_bg, y_pos_bg, points, obstacles, player_name, high_scores
     run = True
     clock = pygame.time.Clock()
     player = Dinosaur()
@@ -190,12 +225,12 @@ def main():
     game_speed = 14
     x_pos_bg = 0
     y_pos_bg = 380
-    points = read_high_score()
+    points = 0
     obstacles = []
     death_count = 0
 
     def score():
-        global points, game_speed
+        global points, game_speed, high_scores
         points += 1
         if points % 100 == 0:
             game_speed += 1
@@ -206,8 +241,13 @@ def main():
         SCREEN.blit(text, textRect)
 
         # Update high score if current score is higher
-        if points > read_high_score():
-            write_high_score(points)
+        if player_name in high_scores:
+            if points > high_scores[player_name]:
+                high_scores[player_name] = points
+        else:
+            high_scores[player_name] = points
+
+        write_high_scores()
 
     def background():
         global x_pos_bg, y_pos_bg
@@ -259,7 +299,7 @@ def main():
 
 
 def menu(death_count):
-    global points
+    global points, player_name
     run = True
     while run:
         SCREEN.fill((255, 255, 255))
@@ -269,10 +309,21 @@ def menu(death_count):
             text = font.render("Press any Key to Start", True, (0, 0, 0))
         elif death_count > 0:
             text = font.render("Press any Key to Restart", True, (0, 0, 0))
-            score_text = font.render("Your Score: " + str(points), True, (0, 0, 0))
+            score_text = font.render(f"Your Score: {points}", True, (0, 0, 0))
             score_rect = score_text.get_rect()
             score_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
             SCREEN.blit(score_text, score_rect)
+
+            # Display high scores
+            high_score_text = font.render(f"High Score ({player_name}): {high_scores.get(player_name, 0)}", True, (0, 0, 0))
+            high_score_rect = high_score_text.get_rect()
+            high_score_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100)
+            SCREEN.blit(high_score_text, high_score_rect)
+
+            switch_user_text = font.render("Press S to Switch User", True, (0, 0, 0))
+            switch_user_rect = switch_user_text.get_rect()
+            switch_user_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 150)
+            SCREEN.blit(switch_user_text, switch_user_rect)
 
         text_rect = text.get_rect()
         text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
@@ -285,24 +336,13 @@ def menu(death_count):
                 pygame.quit()
                 run = False
             if event.type == pygame.KEYDOWN:
-                main()
-
-
-def read_high_score():
-    if not os.path.isfile('highscore.txt'):
-        return 0
-    with open('highscore.txt', 'r') as file:
-        try:
-            high_score = int(file.read())
-        except ValueError:
-            return 0
-    return high_score
-
-
-def write_high_score(score):
-    with open('highscore.txt', 'w') as file:
-        file.write(str(score))
+                if event.key == pygame.K_s:
+                    get_player_name()
+                else:
+                    main()
 
 
 if __name__ == "__main__":
+    read_high_scores()
+    get_player_name()
     menu(death_count=0)
