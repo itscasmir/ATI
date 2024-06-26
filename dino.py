@@ -10,6 +10,7 @@ SCREEN_HEIGHT = 600
 SCREEN_WIDTH = 1100
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+
 # Load images
 Running = [pygame.image.load(os.path.join("pic/dino", "DinoRun1.png")), pygame.image.load(os.path.join("pic/dino", "DinoRun2.png"))]
 Jumping = pygame.image.load(os.path.join("pic/dino", "DinoJump.png"))
@@ -36,7 +37,7 @@ font = pygame.font.Font('freesansbold.ttf', 20)
 player_name = ""
 high_scores = {}
 
-
+# Dinosaur class definition
 class Dinosaur:
     X_POS = 80
     Y_POS = 310
@@ -59,6 +60,7 @@ class Dinosaur:
         self.dino_rect.x = self.X_POS
         self.dino_rect.y = self.Y_POS
 
+    # Update the state of the dinosaur
     def update(self, userInput):
         if self.dino_duck:
             self.duck()
@@ -83,6 +85,7 @@ class Dinosaur:
             self.dino_run = True
             self.dino_jump = False
 
+    # Handle ducking animation
     def duck(self):
         self.image = self.duck_img[self.step_index // 5]
         self.dino_rect = self.image.get_rect()
@@ -90,6 +93,7 @@ class Dinosaur:
         self.dino_rect.y = self.Y_POS_DUCK
         self.step_index += 1
 
+    # Handle running animation
     def run(self):
         self.image = self.run_img[self.step_index // 5]
         self.dino_rect = self.image.get_rect()
@@ -97,6 +101,7 @@ class Dinosaur:
         self.dino_rect.y = self.Y_POS
         self.step_index += 1
 
+    # Handle jumping animation
     def jump(self):
         self.image = self.jump_img
         if self.dino_jump:
@@ -106,10 +111,12 @@ class Dinosaur:
             self.dino_jump = False
             self.jump_vel = self.JUMP_VEL
 
+    # Draw the dinosaur on the screen
     def draw(self, SCREEN):
         SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
 
 
+# Cloud class definition
 class Cloud:
     def __init__(self):
         self.x = SCREEN_WIDTH + random.randint(800, 1000)
@@ -117,16 +124,18 @@ class Cloud:
         self.image = CLOUD
         self.width = self.image.get_width()
 
+    # Update cloud position
     def update(self):
         self.x -= game_speed
         if self.x < -self.width:
             self.x = SCREEN_WIDTH + random.randint(2500, 3000)
             self.y = random.randint(50, 100)
 
+    # Draw cloud on the screen
     def draw(self, SCREEN):
         SCREEN.blit(self.image, (self.x, self.y))
 
-
+# Obstacle class definition
 class Obstacle:
     def __init__(self, image, type):
         self.image = image
@@ -134,29 +143,32 @@ class Obstacle:
         self.rect = self.image[self.type].get_rect()
         self.rect.x = SCREEN_WIDTH
 
+    # Update obstacle position
     def update(self):
         self.rect.x -= game_speed
         if self.rect.x < -self.rect.width:
             obstacles.pop()
 
+    # Draw obstacle on the screen
     def draw(self, SCREEN):
         SCREEN.blit(self.image[self.type], self.rect)
 
 
+# Small Cactus class definition
 class SmallCactus(Obstacle):
     def __init__(self, image):
         self.type = random.randint(0, 2)
         super().__init__(image, self.type)
         self.rect.y = 325
 
-
+# Large Cactus class definition
 class LargeCactus(Obstacle):
     def __init__(self, image):
         self.type = random.randint(0, 2)
         super().__init__(image, self.type)
         self.rect.y = 300
 
-
+# Bird class definition
 class Bird(Obstacle):
     def __init__(self, image):
         self.type = 0
@@ -164,13 +176,14 @@ class Bird(Obstacle):
         self.rect.y = 250
         self.index = 0
 
+    # Draw bird with flapping wings
     def draw(self, SCREEN):
         if self.index >= 9:
             self.index = 0
         SCREEN.blit(self.image[self.index // 5], self.rect)
         self.index += 1
 
-
+# Read high scores from file
 def read_high_scores():
     global high_scores
     if not os.path.isfile('highscores.json'):
@@ -182,13 +195,13 @@ def read_high_scores():
             return {}
     return high_scores
 
-
+# Write high scores to file
 def write_high_scores():
     global high_scores
     with open('highscores.json', 'w') as file:
         json.dump(high_scores, file)
 
-
+# Get player name
 def get_player_name():
     global player_name
     run = True
@@ -215,17 +228,17 @@ def get_player_name():
                 else:
                     user_text += event.unicode
 
-
+# Search high score by username
 def search_high_score(username):
     global high_scores
     return high_scores.get(username, "User not found")
 
-
+# Sort high scores in descending order
 def sort_high_scores():
     global high_scores
     return sorted(high_scores.items(), key=lambda item: item[1], reverse=True)
 
-
+# Display all high scores
 def display_high_scores():
     sorted_scores = sort_high_scores()
     y_offset = 50
@@ -347,41 +360,50 @@ def menu(death_count):
     while run:
         SCREEN.fill((255, 255, 255))
         font = pygame.font.Font('freesansbold.ttf', 30)
-
+        
         if death_count == 0:
             text = font.render("Press any Key to Start", True, (0, 0, 0))
+            text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50))
+            SCREEN.blit(text, text_rect)
+            # Draw a line below the text
+            pygame.draw.line(SCREEN, (0, 0, 0), (text_rect.left, text_rect.bottom + 5), (text_rect.right, text_rect.bottom + 5), 2)
         elif death_count > 0:
-            text = font.render("Press any Key to Restart", True, (0, 0, 0))
+            # Game Over Text
+            game_over_text = font.render("Game Over", True, (0, 0, 0))
+            game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 100))
+            SCREEN.blit(game_over_text, game_over_rect)
+            # Draw a line below the text
+            pygame.draw.line(SCREEN, (0, 0, 0), (game_over_rect.left, game_over_rect.bottom + 5), (game_over_rect.right, game_over_rect.bottom + 5), 2)
+
+            # Display Score
             score_text = font.render(f"Your Score: {points}", True, (0, 0, 0))
-            score_rect = score_text.get_rect()
-            score_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
+            score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50))
             SCREEN.blit(score_text, score_rect)
+            # Draw a line below the text
+            pygame.draw.line(SCREEN, (0, 0, 0), (score_rect.left, score_rect.bottom + 5), (score_rect.right, score_rect.bottom + 5), 2)
 
-            # Display high scores
+            # Display High Score
             high_score_text = font.render(f"High Score ({player_name}): {high_scores.get(player_name, 0)}", True, (0, 0, 0))
-            high_score_rect = high_score_text.get_rect()
-            high_score_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100)
+            high_score_rect = high_score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
             SCREEN.blit(high_score_text, high_score_rect)
+            # Draw a line below the text
+            pygame.draw.line(SCREEN, (0, 0, 0), (high_score_rect.left, high_score_rect.bottom + 5), (high_score_rect.right, high_score_rect.bottom + 5), 2)
 
-            switch_user_text = font.render("Press S to Switch User", True, (0, 0, 0))
-            switch_user_rect = switch_user_text.get_rect()
-            switch_user_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 150)
-            SCREEN.blit(switch_user_text, switch_user_rect)
+            # Display Options
+            options = [
+                "Press any Key to Restart",
+                "Press S to Switch User",
+                "Press F to Search by Username",
+                "Press P to Show Sorted High Scores"
+            ]
+            for i, option in enumerate(options):
+                option_text = font.render(option, True, (0, 0, 0))
+                option_rect = option_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50 + i * 40))
+                SCREEN.blit(option_text, option_rect)
+                # Draw a line below the text
+                pygame.draw.line(SCREEN, (0, 0, 0), (option_rect.left, option_rect.bottom + 5), (option_rect.right, option_rect.bottom + 5), 2)
 
-            search_algorithm_text = font.render("Press F to Search by Username", True, (0, 0, 0))
-            search_algorithm_rect = search_algorithm_text.get_rect()
-            search_algorithm_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 200)
-            SCREEN.blit(search_algorithm_text, search_algorithm_rect)
-
-            sorted_highscores_text = font.render("Press P to Show Sorted High Scores", True, (0, 0, 0))
-            sorted_highscores_rect = sorted_highscores_text.get_rect()
-            sorted_highscores_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 250)
-            SCREEN.blit(sorted_highscores_text, sorted_highscores_rect)
-
-        text_rect = text.get_rect()
-        text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
-        SCREEN.blit(text, text_rect)
-        SCREEN.blit(Running[0], (SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2 - 140))
+        SCREEN.blit(Running[0], (SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2 - 200))
         pygame.display.update()
 
         for event in pygame.event.get():
@@ -398,9 +420,9 @@ def menu(death_count):
                     while not username_entered:
                         SCREEN.fill((255, 255, 255))
                         input_text = font.render(f"Enter username to search: {username}", True, (0, 0, 0))
-                        input_text_rect = input_text.get_rect()
-                        input_text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+                        input_text_rect = input_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
                         SCREEN.blit(input_text, input_text_rect)
+                        pygame.draw.line(SCREEN, (0, 0, 0), (input_text_rect.left, input_text_rect.bottom + 5), (input_text_rect.right, input_text_rect.bottom + 5), 2)
                         pygame.display.update()
 
                         for event_search in pygame.event.get():
@@ -423,6 +445,7 @@ def menu(death_count):
                     display_high_scores()
                 else:
                     main()
+
 
 
 if __name__ == "__main__":
