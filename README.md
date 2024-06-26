@@ -61,6 +61,9 @@ Press any key to restart.
 Press S to switch user.
 Press F to search for a user's high score.
 Press P to display sorted high scores.
+
+![Screenshot (69)](https://github.com/itscasmir/ATI/assets/162343264/8d627676-46d5-4e21-abc8-5fddc28b8394)
+
 High Scores
 High scores are saved in highscores.json.
 The game saves the highest score achieved by each player.
@@ -68,7 +71,7 @@ High scores can be displayed in descending order or searched by player name.
 Code Structure
 Global Constants: Screen dimensions, asset loading.
 
-
+![Screenshot (68)](https://github.com/itscasmir/ATI/assets/162343264/a6f5aa66-78b5-4ce2-8969-ef976022118b)
 
 Class Definitions:
 Dinosaur: Handles the dinosaur's behavior and animations.
