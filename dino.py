@@ -368,26 +368,30 @@ def menu(death_count):
             # Draw a line below the text
             pygame.draw.line(SCREEN, (0, 0, 0), (text_rect.left, text_rect.bottom + 5), (text_rect.right, text_rect.bottom + 5), 2)
         elif death_count > 0:
+            # Increase the size of the box
+            box_width = 700
+            box_height = 500
+            box_x = (SCREEN_WIDTH - box_width) // 2
+            box_y = (SCREEN_HEIGHT - box_height) // 2
+
+            # Draw the background box
+            pygame.draw.rect(SCREEN, (200, 200, 200), (box_x, box_y, box_width, box_height))
+            pygame.draw.rect(SCREEN, (0, 0, 0), (box_x, box_y, box_width, box_height), 2)
+
             # Game Over Text
             game_over_text = font.render("Game Over", True, (0, 0, 0))
-            game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 100))
+            game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, box_y + 50))
             SCREEN.blit(game_over_text, game_over_rect)
-            # Draw a line below the text
-            pygame.draw.line(SCREEN, (0, 0, 0), (game_over_rect.left, game_over_rect.bottom + 5), (game_over_rect.right, game_over_rect.bottom + 5), 2)
 
             # Display Score
             score_text = font.render(f"Your Score: {points}", True, (0, 0, 0))
-            score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50))
+            score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, box_y + 100))
             SCREEN.blit(score_text, score_rect)
-            # Draw a line below the text
-            pygame.draw.line(SCREEN, (0, 0, 0), (score_rect.left, score_rect.bottom + 5), (score_rect.right, score_rect.bottom + 5), 2)
 
             # Display High Score
             high_score_text = font.render(f"High Score ({player_name}): {high_scores.get(player_name, 0)}", True, (0, 0, 0))
-            high_score_rect = high_score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+            high_score_rect = high_score_text.get_rect(center=(SCREEN_WIDTH // 2, box_y + 150))
             SCREEN.blit(high_score_text, high_score_rect)
-            # Draw a line below the text
-            pygame.draw.line(SCREEN, (0, 0, 0), (high_score_rect.left, high_score_rect.bottom + 5), (high_score_rect.right, high_score_rect.bottom + 5), 2)
 
             # Display Options
             options = [
@@ -396,14 +400,19 @@ def menu(death_count):
                 "Press F to Search by Username",
                 "Press P to Show Sorted High Scores"
             ]
+            option_positions = [
+                (SCREEN_WIDTH // 2, box_y + 200),
+                (SCREEN_WIDTH // 2, box_y + 250),
+                (SCREEN_WIDTH // 2, box_y + 300),
+                (SCREEN_WIDTH // 2, box_y + 350)
+            ]
+
             for i, option in enumerate(options):
                 option_text = font.render(option, True, (0, 0, 0))
-                option_rect = option_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50 + i * 40))
+                option_rect = option_text.get_rect(center=option_positions[i])
                 SCREEN.blit(option_text, option_rect)
-                # Draw a line below the text
-                pygame.draw.line(SCREEN, (0, 0, 0), (option_rect.left, option_rect.bottom + 5), (option_rect.right, option_rect.bottom + 5), 2)
 
-        SCREEN.blit(Running[0], (SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2 - 200))
+        SCREEN.blit(Running[0], (SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2 - 250))
         pygame.display.update()
 
         for event in pygame.event.get():
