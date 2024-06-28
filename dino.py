@@ -1,3 +1,15 @@
+'''
+this game is going to be a representation of the intial dino game with changes done to improve user inteface.
+this game will satisfy error handling, a search algorith as well as sort algorithm
+there would be an instance to switch users implemented into this code 
+the aim of this game is to facilitate and furtherly improve the initial game. providing a different feeling the past users of the chrome dino game
+
+
+'''
+
+
+
+#importing the required modules and libraries to run this game
 import pygame
 import os
 import random
@@ -39,15 +51,16 @@ high_scores = {}
 
 # Dinosaur class definition
 class Dinosaur:
+    #dino x and y location in game
     X_POS = 80
     Y_POS = 310
     Y_POS_DUCK = 340
     JUMP_VEL = 8.5
 
     def __init__(self):
-        self.duck_img = Ducking
-        self.run_img = Running
-        self.jump_img = Jumping
+        self.duck_img = Ducking #for ducking birds
+        self.run_img = Running #for running
+        self.jump_img = Jumping # for jumping over cactus and obstacles
 
         self.dino_duck = False
         self.dino_run = True
@@ -183,7 +196,7 @@ class Bird(Obstacle):
         SCREEN.blit(self.image[self.index // 5], self.rect)
         self.index += 1
 
-# Read high scores from file
+# Function to Read high scores from file
 def read_high_scores():
     global high_scores
     if not os.path.isfile('highscores.json'):
@@ -195,7 +208,7 @@ def read_high_scores():
             return {}
     return high_scores
 
-# Write high scores to file
+# Function to Write high scores to file
 def write_high_scores():
     global high_scores
     with open('highscores.json', 'w') as file:
@@ -259,7 +272,7 @@ def display_high_scores():
     pygame.display.update()
     pygame.time.wait(3000)
 
-
+# Function to display user's high score
 def display_user_high_score(username, score):
     global player_name, high_scores
     SCREEN.fill((255, 255, 255))
@@ -277,6 +290,8 @@ def display_user_high_score(username, score):
     pygame.display.update()
     pygame.time.wait(3000)
 
+
+# Main function to run the game
 def main():
     global game_speed, x_pos_bg, y_pos_bg, points, obstacles, player_name, high_scores
     run = True
@@ -290,6 +305,7 @@ def main():
     obstacles = []
     death_count = 0
 
+     # Function to display current score
     def score():
         global points, game_speed, high_scores
         points += 1
@@ -305,6 +321,8 @@ def main():
         text_rect.center = (1000, 40)
         SCREEN.blit(text, text_rect)
 
+
+     # Function to display background
     def background():
         global x_pos_bg, y_pos_bg
         image_width = BG.get_width()
@@ -353,7 +371,7 @@ def main():
         pygame.display.update()
         clock.tick(30)
 
-
+# Function to display menu
 def menu(death_count):
     global points, player_name, high_scores
     run = True
@@ -456,7 +474,7 @@ def menu(death_count):
                     main()
 
 
-
+# Main entry point of the game
 if __name__ == "__main__":
     read_high_scores()
     get_player_name()
