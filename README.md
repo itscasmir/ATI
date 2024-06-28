@@ -84,3 +84,4 @@ get_player_name: Prompts user for player name.
 search_high_score, sort_high_scores, display_high_scores, display_user_high_score: Manage and display high scores.
 main: The main game loop.
 menu: Displays the main menu and handles user input.
+![game menu](https://github.com/itscasmir/ATI/assets/162343264/708f6df8-cdfa-4545-9ad7-da181e56fe24)
